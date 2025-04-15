@@ -1,6 +1,6 @@
 name: ql_gen
 description: A library for generating dart code from GraphQL schema.
-version: 0.1.0
+version: 0.1.1
 repository: https://github.com/roadroot/ql_gen
 
 environment:

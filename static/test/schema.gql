@@ -1,11 +1,19 @@
-# type Query {
-#   name(p: [String], id: Upload!): String
-# }
+type Author {
+  id: ID
+  name: String
+  books: [Book!]
+}
 
-input D5555 {
-  id: [Upload]
+type Book {
+  id: ID
+  title: String
+  author: Author
 }
 
 type Query {
-  name(p: D5555): String
+  books: [Book!]
+  authors: [Author!]
+  book(id: ID!): Book
+  author(id: ID!): Author
+  version: String
 }

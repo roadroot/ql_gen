@@ -84,7 +84,7 @@ class QlField {
       if (!type.isString) {
         if (type.nativeType == null) {
           output = '''{
-            final result = $name${isParentList ? '' : required}.build();
+            final result = $name${isParentList && !type.isNullable ? '' : required}.build();
             variables.concat(result.\$2);
             output.write(result.\$1);
           }

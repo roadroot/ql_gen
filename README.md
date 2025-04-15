@@ -33,7 +33,7 @@ To use this package, add `ql_gen` as a [dependency in your pubspec.yaml file](ht
 <!-- command and result example -->
 
 ```bash
-dart run .\bin\ql_gen.dart --help
+dart run ql_gen --help
 ```
 
 ```bash
@@ -45,147 +45,83 @@ dart run .\bin\ql_gen.dart --help
 ```
 
 ```bash
-dart run .\bin\ql_gen.dart -s static/test/schema.gql -t ql.dart
+dart run ql_gen -s schema.gql -t lib/src/generated/ql.dart
 ```
+
+## Example
+
+For this example, we will use a simple GraphQL schema with authors and books.
 
 ```graphql
 # schema.gql
 type Author {
-  id: ID!
-  name: String!
-  books: [Book]
+  id: ID
+  name: String
+  books: [Book!]
 }
 
 type Book {
-  id: ID!
-  title: String!
-  author: Author!
+  id: ID
+  title: String
+  author: Author
+}
+
+type Query {
+  books: [Book!]
+  authors: [Author!]
+  book(id: ID!): Book
+  author(id: ID!): Author
+  version: String
 }
 ```
+
+The result (can be found [here](./doc/result.dart)) will be a dart file having classes for each type and query (`Query`, `Author`, `Book`).
+
+To fetch all the books of the author with id `1`, you can use the following code:
+
+> Note: we are using `graphql_flutter` package to execute the query.
 
 ```dart
-// ql.dart
-// GENERATED CODE - DO NOT MODIFY BY HAND
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'ql.dart'; // generated file
 
-class Author {
-  final String id;
-  final String name;
-  final List<Book?>? books;
-
-  const Author({
-    required this.id,
-    required this.name,
-    this.books,
-  });
-
-  factory Author.fromMap(Map<String, dynamic> data) {
-    return Author(
-      id: data['id'],
-      name: data['name'],
-      books: data['books'],
-    );
-  }
-  dynamic construct(dynamic data,
-      {dynamic Function(Map<String, dynamic>)? fromMap}) {
-    if (data is List) {
-      return data.map((e) => construct(e, fromMap: fromMap));
-    }
-    if (fromMap != null) {
-      return fromMap(data);
-    }
-    return data;
-  }
-
-  @override
-  String toString() {
-    StringBuffer output = StringBuffer();
-    output.writeln('{');
-    output.writeln('id: "$id"');
-    output.writeln('name: "$name"');
-    if (books != null) {
-      output.writeln('books: [');
-      output.writeln(books!.join(',\n'));
-      output.writeln(']');
-    }
-
-    output.writeln('}');
-    return output.toString();
+Future<Map<String, dynamic>?> query(
+    (String, Map<String, dynamic>) qlAndVariables) async {
+  logger.info('Query: ${qlAndVariables.$1}');
+  logger.info('Variables: ${qlAndVariables.$2}');
+  try {
+    return await client
+        .query(QueryOptions(
+          document: gql(qlAndVariables.$1),
+          variables: qlAndVariables.$2,
+          cacheRereadPolicy: CacheRereadPolicy.ignoreAll,
+        ))
+        .then((value) => value.data);
+  } catch (e) {
+    logger.severe(e);
+    rethrow;
   }
 }
 
-class AuthorSelector {
-  final BookSelector? books;
-  const AuthorSelector({
-    this.books,
-  });
-  String select() {
-    StringBuffer output = StringBuffer();
-    output.writeln('{');
-    output.writeln('id');
-    output.writeln('name');
-    if (books != null) {
-      output.writeln('books ${books!.select()}');
-    }
-    output.writeln('}');
-    return output.toString();
-  }
-}
-
-class Book {
-  final String id;
-  final String title;
-  final Author author;
-
-  const Book({
-    required this.id,
-    required this.title,
-    required this.author,
-  });
-
-  factory Book.fromMap(Map<String, dynamic> data) {
-    return Book(
-      id: data['id'],
-      title: data['title'],
-      author: data['author'],
-    );
-  }
-  dynamic construct(dynamic data,
-      {dynamic Function(Map<String, dynamic>)? fromMap}) {
-    if (data is List) {
-      return data.map((e) => construct(e, fromMap: fromMap));
-    }
-    if (fromMap != null) {
-      return fromMap(data);
-    }
-    return data;
-  }
-
-  @override
-  String toString() {
-    StringBuffer output = StringBuffer();
-    output.writeln('{');
-    output.writeln('id: "$id"');
-    output.writeln('title: "$title"');
-    output.writeln('author: $author');
-
-    output.writeln('}');
-    return output.toString();
-  }
-}
-
-class BookSelector {
-  final AuthorSelector author;
-  const BookSelector({
-    this.author = const AuthorSelector(),
-  });
-  String select() {
-    StringBuffer output = StringBuffer();
-    output.writeln('{');
-    output.writeln('id');
-    output.writeln('title');
-    output.writeln('author ${author.select()}');
-    output.writeln('}');
-    return output.toString();
-  }
+void main() async {
+  final query = Query(query);
+  List<Author>? authors = await query.authors(AuthorSelector(
+    id: true,
+    name: true,
+    books: BookSelector(
+        id: true,
+        title: false, // or don't include it at all
+    )
+  ));
 }
 ```
+
+You can use any plugin for GraphQL, you just need to pass the executor a function that has the bellow signature.
+
+```dart
+Future<Map<String, dynamic>?> query(
+    (String, Map<String, dynamic>) qlAndVariables)
+```
+
+`qlAndVariables` is a tuple of the query and the variables. The query is a string and the variables are a map of string to dynamic.
+It must return a `Future` of a map of string to dynamic. The map is the result of the query.
