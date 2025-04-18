@@ -33,8 +33,8 @@ class QlType {
   // TODO: is ID well handled? Should it be quoted? What if we use a number as an ID?
   /// Checks if the type is `String`.
   ///
-  /// ID, String are strings.
-  /// List<String>, DateTime are not strings.
+  /// `ID`, `String` are strings.
+  /// `List<String>`, `DateTime` are not strings.
   bool get isString => name == NativeType.string.dartName;
 
   /// Returns the dart type of the selector.

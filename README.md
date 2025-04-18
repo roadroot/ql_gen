@@ -125,3 +125,7 @@ Future<Map<String, dynamic>?> query(
 
 `qlAndVariables` is a tuple of the query and the variables. The query is a string and the variables are a map of string to dynamic.
 It must return a `Future` of a map of string to dynamic. The map is the result of the query.
+
+## Issues
+
+Please feel free to open an issue if you find any bugs or have any feature requests [here](https://github.com/roadroot/ql_gen/issues/new).

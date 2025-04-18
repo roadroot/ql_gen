@@ -98,7 +98,8 @@ class QlMethod {
       output.writeln(e.parameter);
     }
     output.writeln(') async {');
-    output.writeln('return construct((await _executor($qlMethodName(');
+    output.writeln(
+        'return ${returnType.isList ? '(' : ''}construct((await _executor($qlMethodName(');
     if (!returnType.hasNativeCore) {
       output.writeln('\$selector,');
     }
@@ -109,7 +110,8 @@ class QlMethod {
     if (!returnType.hasNativeCore) {
       output.write(' fromMap: ${returnType.coreType.name}.fromMap,');
     }
-    output.writeln(');');
+    output.writeln(
+        ')${returnType.isList ? ' as List${returnType.nullable})${returnType.nullable}.cast<${returnType.innerType}>()' : ''};');
     output.writeln('}');
     return output.toString();
   }

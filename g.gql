@@ -1,0 +1,10 @@
+type Query {
+  appUpdate(version: String): [Update!]!
+}
+
+type Update {
+  version: String!
+  url: String!
+  isLatest: Boolean!
+  createdAt: String!
+}

@@ -96,7 +96,9 @@ class ApiGenerator {
   }
 
   void export(String path) {
-    File(path).writeAsStringSync(dartQlApi);
+    File output = File(path);
+    output.parent.createSync(recursive: true);
+    output.writeAsStringSync(dartQlApi);
     Process.runSync('dart', ['format', path]);
   }
 
