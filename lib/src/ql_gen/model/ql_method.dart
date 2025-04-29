@@ -68,9 +68,19 @@ class QlMethod {
     if (!returnType.hasNativeCore) {
       output.writeln('${returnType.selectorName} \$selector,');
     }
-    for (QlField e in parameters) {
-      output.writeln(e.parameter);
+
+    if (parameters.isNotEmpty) {
+      output.writeln('{');
     }
+
+    for (QlField e in parameters) {
+      output.writeln(e.parameterWithRequired);
+    }
+
+    if (parameters.isNotEmpty) {
+      output.writeln('}');
+    }
+
     output.writeln(') {');
     output.writeln('return _executor($qlMethodName(');
     if (!returnType.hasNativeCore) {
@@ -94,8 +104,14 @@ class QlMethod {
     if (!returnType.hasNativeCore) {
       output.writeln('${returnType.selectorName} \$selector,');
     }
+    if (parameters.isNotEmpty) {
+      output.writeln('{');
+    }
     for (QlField e in parameters) {
-      output.writeln(e.parameter);
+      output.writeln(e.parameterWithRequired);
+    }
+    if (parameters.isNotEmpty) {
+      output.writeln('}');
     }
     output.writeln(') async {');
     output.writeln(

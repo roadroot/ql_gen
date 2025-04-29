@@ -22,6 +22,8 @@ class QlField {
   String get constructorField =>
       '${type.isNullable ? '' : 'required '}this.$name,';
   String get parameter => '$this,';
+  String get parameterWithRequired =>
+      '${type.isNullable ? '' : 'required '}$parameter';
 
   /// returns the required symbol if the *field* (empty string in cased of a parameter) is nullable
   String get required =>

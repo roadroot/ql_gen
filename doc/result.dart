@@ -227,12 +227,13 @@ class Query {
   Future<List<Book>?> books(
     BookSelector $selector,
   ) async {
-    return construct(
+    return (construct(
       (await _executor(booksQl(
         $selector,
       )))?['books'],
       fromMap: Book.fromMap,
-    );
+    ) as List?)
+        ?.cast<Book>();
   }
 
   (String, Map<String, dynamic>) booksQl(
@@ -255,12 +256,13 @@ class Query {
   Future<List<Author>?> authors(
     AuthorSelector $selector,
   ) async {
-    return construct(
+    return (construct(
       (await _executor(authorsQl(
         $selector,
       )))?['authors'],
       fromMap: Author.fromMap,
-    );
+    ) as List?)
+        ?.cast<Author>();
   }
 
   (String, Map<String, dynamic>) authorsQl(
@@ -281,9 +283,9 @@ class Query {
   }
 
   Future<Book?> book(
-    BookSelector $selector,
-    String id,
-  ) async {
+    BookSelector $selector, {
+    required String id,
+  }) async {
     return construct(
       (await _executor(bookQl(
         $selector,
@@ -317,9 +319,9 @@ class Query {
   }
 
   Future<Author?> author(
-    AuthorSelector $selector,
-    String id,
-  ) async {
+    AuthorSelector $selector, {
+    required String id,
+  }) async {
     return construct(
       (await _executor(authorQl(
         $selector,
