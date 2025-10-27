@@ -15,3 +15,7 @@
 ## 0.1.3
 
 - Implemented feature [#3](https://github.com/roadroot/ql_gen/issues/3), Make parameters of a query/mutation/subscription named parameters instead of positional parameters.
+
+## 0.1.4
+
+- Bump dependecy versions
