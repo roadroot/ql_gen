@@ -14,9 +14,9 @@
 include: package:lints/recommended.yaml
 
 analyzer:
-	exclude:
-		- static/test/**
-		- doc/result.dart
+  exclude:
+    - static/test/**
+    - doc/result.dart
 
 # Uncomment the following section to specify additional rules.
 
