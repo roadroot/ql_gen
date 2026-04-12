@@ -1,4 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+extension InsertAt on StringBuffer {
+  void insertAt(int index, String value) {
+    if (index < 0 || index > length) {
+      throw RangeError('index $index out of bounds');
+    }
+    String temp = toString();
+    clear();
+    write(temp.substring(0, index));
+    write(value);
+    write(temp.substring(index));
+  }
+}
+
 dynamic construct(dynamic data,
     {dynamic Function(Map<String, dynamic>)? fromMap}) {
   if (data == null) {
@@ -11,6 +24,46 @@ dynamic construct(dynamic data,
     return fromMap(data);
   }
   return data;
+}
+
+class KeyGenerator {
+  int key = 0;
+
+  @override
+  String toString() {
+    return (key++).toRadixString(36);
+  }
+}
+
+final keyGenerator = KeyGenerator();
+
+class VariableInfo {
+  final String name;
+  final dynamic value;
+  final String type;
+
+  VariableInfo(this.value, this.type, [String? name])
+      : name = name ?? keyGenerator.toString();
+}
+
+class VariableContainer {
+  final Set<VariableInfo> variables = {};
+
+  void add(dynamic value, String type, [String? name]) {
+    variables.add(VariableInfo(value, type, name));
+  }
+
+  void concat(VariableContainer other) {
+    variables.addAll(other.variables);
+  }
+
+  Map<String, dynamic> get map {
+    Map<String, dynamic> map = {};
+    for (VariableInfo variable in variables) {
+      map[variable.name] = variable.value;
+    }
+    return map;
+  }
 }
 
 class Author {
@@ -35,27 +88,35 @@ class Author {
     );
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
+    output.write('id: ');
     output.writeln(
-        'id: "${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
+    output.write('name: ');
     output.writeln(
-        'name: "${name.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${name.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
     if (books != null) {
-      output.writeln('books: [');
-      output.writeln(books!.join(',\n'));
-      output.writeln(']');
+      output.write('books: ');
+      output.write('[');
+      for (var element in books!) {
+        output.writeln(
+            '"${element!.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        output.write(',');
+      }
+      output.write(']');
     }
-
     if (phone != null) {
+      output.write('phone: ');
       output.writeln(
-          'phone: "${phone?.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+          '"${phone!.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
     }
-
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }
 
@@ -102,18 +163,24 @@ class Book {
     );
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
+    output.write('id: ');
     output.writeln(
-        'id: "${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
+    output.write('title: ');
     output.writeln(
-        'title: "${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
+    output.write('author: ');
     output.writeln(
-        'author: "${author.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${author.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }
 

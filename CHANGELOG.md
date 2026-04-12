@@ -19,3 +19,10 @@
 ## 0.1.4
 
 - Bump dependecy versions
+
+## 0.1.5
+
+- Improve README with practical installation, usage, and generation workflow docs.
+- Upgrade `tokenizer_parser` dependency to `^0.1.2`.
+- Add API documentation comments and clean analyzer issues.
+- Add tests for utility helpers and schema file reader behavior.

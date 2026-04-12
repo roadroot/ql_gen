@@ -1,4 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+extension InsertAt on StringBuffer {
+  void insertAt(int index, String value) {
+    if (index < 0 || index > length) {
+      throw RangeError('index $index out of bounds');
+    }
+    String temp = toString();
+    clear();
+    write(temp.substring(0, index));
+    write(value);
+    write(temp.substring(index));
+  }
+}
+
 dynamic construct(dynamic data,
     {dynamic Function(Map<String, dynamic>)? fromMap}) {
   if (data == null) {
@@ -11,6 +24,46 @@ dynamic construct(dynamic data,
     return fromMap(data);
   }
   return data;
+}
+
+class KeyGenerator {
+  int key = 0;
+
+  @override
+  String toString() {
+    return (key++).toRadixString(36);
+  }
+}
+
+final keyGenerator = KeyGenerator();
+
+class VariableInfo {
+  final String name;
+  final dynamic value;
+  final String type;
+
+  VariableInfo(this.value, this.type, [String? name])
+      : name = name ?? keyGenerator.toString();
+}
+
+class VariableContainer {
+  final Set<VariableInfo> variables = {};
+
+  void add(dynamic value, String type, [String? name]) {
+    variables.add(VariableInfo(value, type, name));
+  }
+
+  void concat(VariableContainer other) {
+    variables.addAll(other.variables);
+  }
+
+  Map<String, dynamic> get map {
+    Map<String, dynamic> map = {};
+    for (VariableInfo variable in variables) {
+      map[variable.name] = variable.value;
+    }
+    return map;
+  }
 }
 
 class Author {
@@ -32,22 +85,34 @@ class Author {
     );
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
+    output.write('id: ');
     output.writeln(
-        'id: "${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-    output.writeln(
-        'name: "${name.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-    if (books != null) {
-      output.writeln('books: [');
-      output.writeln(books!.join(',\n'));
-      output.writeln(']');
-    }
+        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
 
+    output.write('name: ');
+    output.writeln(
+        '"${name.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
+    if (books != null) {
+      output.write('books: ');
+      output.write('[');
+      for (var element in books!) {
+        {
+          final result = element!.build();
+          variables.concat(result.$2);
+          output.write(result.$1);
+        }
+
+        output.write(',');
+      }
+      output.write(']');
+    }
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }
 
@@ -89,20 +154,28 @@ class Book {
     );
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
+    output.write('id: ');
     output.writeln(
-        'id: "${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-    output.writeln(
-        'title: "${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-    if (author != null) {
-      output.writeln('author: $author');
-    }
+        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
 
+    output.write('title: ');
+    output.writeln(
+        '"${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
+    if (author != null) {
+      output.write('author: ');
+      {
+        final result = author!.build();
+        variables.concat(result.$2);
+        output.write(result.$1);
+      }
+    }
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }
 
@@ -126,58 +199,73 @@ class BookSelector {
 }
 
 class Query {
-  final Future<Map<String, dynamic>?> Function(String query) _executor;
+  final Future<Map<String, dynamic>?> Function(
+      (String, Map<String, dynamic>) queryAndVariables) _executor;
 
   const Query(this._executor);
 
   Future<List<Book?>?> books(
     BookSelector $selector,
   ) async {
-    return construct(
+    return (construct(
       (await _executor(booksQl(
         $selector,
       )))?['books'],
       fromMap: Book.fromMap,
-    );
+    ) as List?)
+        ?.cast<Book?>();
   }
 
-  String booksQl(
+  (String, Map<String, dynamic>) booksQl(
     BookSelector $selector,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('query {');
+    VariableContainer variables = VariableContainer();
     output.writeln('books');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'query$params {');
+    return (output.toString(), variables.map);
   }
 
   Future<List<Author?>?> authors(
     AuthorSelector $selector,
   ) async {
-    return construct(
+    return (construct(
       (await _executor(authorsQl(
         $selector,
       )))?['authors'],
       fromMap: Author.fromMap,
-    );
+    ) as List?)
+        ?.cast<Author?>();
   }
 
-  String authorsQl(
+  (String, Map<String, dynamic>) authorsQl(
     AuthorSelector $selector,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('query {');
+    VariableContainer variables = VariableContainer();
     output.writeln('authors');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'query$params {');
+    return (output.toString(), variables.map);
   }
 
   Future<Book?> book(
-    BookSelector $selector,
-    String id,
-  ) async {
+    BookSelector $selector, {
+    required String id,
+  }) async {
     return construct(
       (await _executor(bookQl(
         $selector,
@@ -187,25 +275,33 @@ class Query {
     );
   }
 
-  String bookQl(
+  (String, Map<String, dynamic>) bookQl(
     BookSelector $selector,
     String id,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('query {');
+    VariableContainer variables = VariableContainer();
     output.writeln('book(');
+    output.write('id: ');
     output.writeln(
-        'id: "${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
     output.writeln(')');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'query$params {');
+    return (output.toString(), variables.map);
   }
 
   Future<Author?> author(
-    AuthorSelector $selector,
-    String id,
-  ) async {
+    AuthorSelector $selector, {
+    required String id,
+  }) async {
     return construct(
       (await _executor(authorQl(
         $selector,
@@ -215,40 +311,49 @@ class Query {
     );
   }
 
-  String authorQl(
+  (String, Map<String, dynamic>) authorQl(
     AuthorSelector $selector,
     String id,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('query {');
+    VariableContainer variables = VariableContainer();
     output.writeln('author(');
+    output.write('id: ');
     output.writeln(
-        'id: "${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
     output.writeln(')');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'query$params {');
+    return (output.toString(), variables.map);
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }
 
 class Mutation {
-  final Future<Map<String, dynamic>?> Function(String query) _executor;
+  final Future<Map<String, dynamic>?> Function(
+      (String, Map<String, dynamic>) queryAndVariables) _executor;
 
   const Mutation(this._executor);
 
   Future<Book?> addBook(
-    BookSelector $selector,
-    String title,
-    String authorId,
-  ) async {
+    BookSelector $selector, {
+    required String title,
+    required String authorId,
+  }) async {
     return construct(
       (await _executor(addBookQl(
         $selector,
@@ -259,28 +364,38 @@ class Mutation {
     );
   }
 
-  String addBookQl(
+  (String, Map<String, dynamic>) addBookQl(
     BookSelector $selector,
     String title,
     String authorId,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('mutation {');
+    VariableContainer variables = VariableContainer();
     output.writeln('addBook(');
+    output.write('title: ');
     output.writeln(
-        'title: "${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
+    output.write('authorId: ');
     output.writeln(
-        'authorId: "${authorId.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${authorId.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
     output.writeln(')');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'mutation$params {');
+    return (output.toString(), variables.map);
   }
 
   Future<Author?> addAuthor(
-    AuthorSelector $selector,
-    String name,
-  ) async {
+    AuthorSelector $selector, {
+    required String name,
+  }) async {
     return construct(
       (await _executor(addAuthorQl(
         $selector,
@@ -290,32 +405,41 @@ class Mutation {
     );
   }
 
-  String addAuthorQl(
+  (String, Map<String, dynamic>) addAuthorQl(
     AuthorSelector $selector,
     String name,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('mutation {');
+    VariableContainer variables = VariableContainer();
     output.writeln('addAuthor(');
+    output.write('name: ');
     output.writeln(
-        'name: "${name.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+        '"${name.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
     output.writeln(')');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'mutation$params {');
+    return (output.toString(), variables.map);
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }
 
 class Subscription {
-  final Stream<Map<String, dynamic>?> Function(String query) _executor;
+  final Stream<Map<String, dynamic>?> Function(
+      (String, Map<String, dynamic>) queryAndVariables) _executor;
 
   const Subscription(this._executor);
 
@@ -330,22 +454,28 @@ class Subscription {
         ));
   }
 
-  String bookAddedQl(
+  (String, Map<String, dynamic>) bookAddedQl(
     BookSelector $selector,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('subscription {');
+    VariableContainer variables = VariableContainer();
     output.writeln('bookAdded');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'subscription$params {');
+    return (output.toString(), variables.map);
   }
 
   Stream<Author?> authorAdded(
-    AuthorSelector $selector,
+    AuthorSelector $selector, {
     Book? book,
     Author? author,
-  ) {
+  }) {
     return _executor(authorAddedQl(
       $selector,
       book,
@@ -356,33 +486,47 @@ class Subscription {
         ));
   }
 
-  String authorAddedQl(
+  (String, Map<String, dynamic>) authorAddedQl(
     AuthorSelector $selector,
     Book? book,
     Author? author,
   ) {
     StringBuffer output = StringBuffer();
-    output.writeln('subscription {');
+    VariableContainer variables = VariableContainer();
     output.writeln('authorAdded(');
     if (book != null) {
-      output.writeln('book: $book');
+      output.write('book: ');
+      {
+        final result = book.build();
+        variables.concat(result.$2);
+        output.write(result.$1);
+      }
     }
-
     if (author != null) {
-      output.writeln('author: $author');
+      output.write('author: ');
+      {
+        final result = author.build();
+        variables.concat(result.$2);
+        output.write(result.$1);
+      }
     }
-
     output.writeln(')');
     output.writeln($selector);
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'subscription$params {');
+    return (output.toString(), variables.map);
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }

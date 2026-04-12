@@ -1,3 +1,4 @@
+/// Deep iterable equality check.
 bool equal(Iterable<Object>? o1, Iterable<Object>? o2) {
   if (o1 == null) {
     return o1 == o2;
@@ -22,8 +23,10 @@ bool equal(Iterable<Object>? o1, Iterable<Object>? o2) {
   return true;
 }
 
-notEqual(Iterable<Object>? o1, Iterable<Object>? o2) => !equal(o1, o2);
+/// Negated form of [equal].
+bool notEqual(Iterable<Object>? o1, Iterable<Object>? o2) => !equal(o1, o2);
 
+/// Computes a deep hash for nested iterables.
 int hash(Iterable<Object> o) {
   int hashCode = 0;
   for (var element in o) {

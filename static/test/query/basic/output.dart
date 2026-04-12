@@ -1,4 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+extension InsertAt on StringBuffer {
+  void insertAt(int index, String value) {
+    if (index < 0 || index > length) {
+      throw RangeError('index $index out of bounds');
+    }
+    String temp = toString();
+    clear();
+    write(temp.substring(0, index));
+    write(value);
+    write(temp.substring(index));
+  }
+}
+
 dynamic construct(dynamic data,
     {dynamic Function(Map<String, dynamic>)? fromMap}) {
   if (data == null) {
@@ -13,8 +26,49 @@ dynamic construct(dynamic data,
   return data;
 }
 
+class KeyGenerator {
+  int key = 0;
+
+  @override
+  String toString() {
+    return (key++).toRadixString(36);
+  }
+}
+
+final keyGenerator = KeyGenerator();
+
+class VariableInfo {
+  final String name;
+  final dynamic value;
+  final String type;
+
+  VariableInfo(this.value, this.type, [String? name])
+      : name = name ?? keyGenerator.toString();
+}
+
+class VariableContainer {
+  final Set<VariableInfo> variables = {};
+
+  void add(dynamic value, String type, [String? name]) {
+    variables.add(VariableInfo(value, type, name));
+  }
+
+  void concat(VariableContainer other) {
+    variables.addAll(other.variables);
+  }
+
+  Map<String, dynamic> get map {
+    Map<String, dynamic> map = {};
+    for (VariableInfo variable in variables) {
+      map[variable.name] = variable.value;
+    }
+    return map;
+  }
+}
+
 class Query {
-  final Future<Map<String, dynamic>?> Function(String query) _executor;
+  final Future<Map<String, dynamic>?> Function(
+      (String, Map<String, dynamic>) queryAndVariables) _executor;
 
   const Query(this._executor);
 
@@ -24,19 +78,25 @@ class Query {
     );
   }
 
-  String helloQl() {
+  (String, Map<String, dynamic>) helloQl() {
     StringBuffer output = StringBuffer();
-    output.writeln('query {');
+    VariableContainer variables = VariableContainer();
     output.writeln('hello');
     output.writeln('}');
-    return output.toString();
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'query$params {');
+    return (output.toString(), variables.map);
   }
 
-  @override
-  String toString() {
+  (String, VariableContainer) build() {
     StringBuffer output = StringBuffer();
+    final VariableContainer variables = VariableContainer();
     output.writeln('{');
     output.writeln('}');
-    return output.toString();
+    return (output.toString(), variables);
   }
 }

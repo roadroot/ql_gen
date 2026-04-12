@@ -16,13 +16,15 @@ class QlParser {
   Set<NativeType> get nativeTypes =>
       objects.expand((e) => e.nativeTypes).toSet();
 
-  visitTokens(List<Token> tokens) {
+  /// Visits all [tokens] and builds parsed objects.
+  void visitTokens(List<Token> tokens) {
     for (Token token in tokens) {
       visitToken(token);
     }
   }
 
-  visitToken(Token token) {
+  /// Visits one [token] and parses supported object tokens.
+  void visitToken(Token token) {
     if (token.model == QlLang.object) {
       objects.add(visitObject(token));
     }

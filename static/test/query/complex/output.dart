@@ -138,19 +138,19 @@ class AuthorSelector {
 class Book {
   final String id;
   final String title;
-  final Author? author;
+  final Author author;
 
   const Book({
     required this.id,
     required this.title,
-    this.author,
+    required this.author,
   });
 
   factory Book.fromMap(Map<String, dynamic> data) {
     return Book(
       id: data['id'],
       title: data['title'],
-      author: data['author'] == null ? null : Author.fromMap(data['author']),
+      author: Author.fromMap(data['author']),
     );
   }
 
@@ -166,23 +166,22 @@ class Book {
     output.writeln(
         '"${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
 
-    if (author != null) {
-      output.write('author: ');
-      {
-        final result = author!.build();
-        variables.concat(result.$2);
-        output.write(result.$1);
-      }
+    output.write('author: ');
+    {
+      final result = author.build();
+      variables.concat(result.$2);
+      output.write(result.$1);
     }
+
     output.writeln('}');
     return (output.toString(), variables);
   }
 }
 
 class BookSelector {
-  final AuthorSelector? author;
+  final AuthorSelector author;
   const BookSelector({
-    this.author,
+    this.author = const AuthorSelector(),
   });
   @override
   String toString() {
@@ -190,125 +189,9 @@ class BookSelector {
     output.writeln('{');
     output.writeln('id');
     output.writeln('title');
-    if (author != null) {
-      output.writeln('author ${author!}');
-    }
+    output.writeln('author $author');
     output.writeln('}');
     return output.toString();
-  }
-}
-
-class Mutation {
-  final Future<Map<String, dynamic>?> Function(
-      (String, Map<String, dynamic>) queryAndVariables) _executor;
-
-  const Mutation(this._executor);
-
-  Future<Author?> createAuthor(
-    AuthorSelector $selector, {
-    required String name,
-  }) async {
-    return construct(
-      (await _executor(createAuthorQl(
-        $selector,
-        name,
-      )))?['createAuthor'],
-      fromMap: Author.fromMap,
-    );
-  }
-
-  (String, Map<String, dynamic>) createAuthorQl(
-    AuthorSelector $selector,
-    String name,
-  ) {
-    StringBuffer output = StringBuffer();
-    VariableContainer variables = VariableContainer();
-    output.writeln('createAuthor(');
-    output.write('name: ');
-    output.writeln(
-        '"${name.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-
-    output.writeln(')');
-    output.writeln($selector);
-    output.writeln('}');
-    String params =
-        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
-    if (params.isNotEmpty) {
-      params = '($params)';
-    }
-    output.insertAt(0, 'mutation$params {');
-    return (output.toString(), variables.map);
-  }
-
-  Future<Book?> createBook(
-    BookSelector $selector, {
-    required String title,
-    required String authorId,
-  }) async {
-    return construct(
-      (await _executor(createBookQl(
-        $selector,
-        title,
-        authorId,
-      )))?['createBook'],
-      fromMap: Book.fromMap,
-    );
-  }
-
-  (String, Map<String, dynamic>) createBookQl(
-    BookSelector $selector,
-    String title,
-    String authorId,
-  ) {
-    StringBuffer output = StringBuffer();
-    VariableContainer variables = VariableContainer();
-    output.writeln('createBook(');
-    output.write('title: ');
-    output.writeln(
-        '"${title.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-
-    output.write('authorId: ');
-    output.writeln(
-        '"${authorId.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-
-    output.writeln(')');
-    output.writeln($selector);
-    output.writeln('}');
-    String params =
-        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
-    if (params.isNotEmpty) {
-      params = '($params)';
-    }
-    output.insertAt(0, 'mutation$params {');
-    return (output.toString(), variables.map);
-  }
-
-  Future<bool?> refresh() async {
-    return construct(
-      (await _executor(refreshQl()))?['refresh'],
-    );
-  }
-
-  (String, Map<String, dynamic>) refreshQl() {
-    StringBuffer output = StringBuffer();
-    VariableContainer variables = VariableContainer();
-    output.writeln('refresh');
-    output.writeln('}');
-    String params =
-        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
-    if (params.isNotEmpty) {
-      params = '($params)';
-    }
-    output.insertAt(0, 'mutation$params {');
-    return (output.toString(), variables.map);
-  }
-
-  (String, VariableContainer) build() {
-    StringBuffer output = StringBuffer();
-    final VariableContainer variables = VariableContainer();
-    output.writeln('{');
-    output.writeln('}');
-    return (output.toString(), variables);
   }
 }
 
@@ -317,6 +200,35 @@ class Query {
       (String, Map<String, dynamic>) queryAndVariables) _executor;
 
   const Query(this._executor);
+
+  Future<List<Book?>?> books(
+    BookSelector $selector,
+  ) async {
+    return (construct(
+      (await _executor(booksQl(
+        $selector,
+      )))?['books'],
+      fromMap: Book.fromMap,
+    ) as List?)
+        ?.cast<Book?>();
+  }
+
+  (String, Map<String, dynamic>) booksQl(
+    BookSelector $selector,
+  ) {
+    StringBuffer output = StringBuffer();
+    VariableContainer variables = VariableContainer();
+    output.writeln('books');
+    output.writeln($selector);
+    output.writeln('}');
+    String params =
+        variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
+    if (params.isNotEmpty) {
+      params = '($params)';
+    }
+    output.insertAt(0, 'query$params {');
+    return (output.toString(), variables.map);
+  }
 
   Future<List<Author?>?> authors(
     AuthorSelector $selector,
@@ -347,24 +259,31 @@ class Query {
     return (output.toString(), variables.map);
   }
 
-  Future<List<Book?>?> books(
-    BookSelector $selector,
-  ) async {
-    return (construct(
-      (await _executor(booksQl(
+  Future<Book?> book(
+    BookSelector $selector, {
+    required String id,
+  }) async {
+    return construct(
+      (await _executor(bookQl(
         $selector,
-      )))?['books'],
+        id,
+      )))?['book'],
       fromMap: Book.fromMap,
-    ) as List?)
-        ?.cast<Book?>();
+    );
   }
 
-  (String, Map<String, dynamic>) booksQl(
+  (String, Map<String, dynamic>) bookQl(
     BookSelector $selector,
+    String id,
   ) {
     StringBuffer output = StringBuffer();
     VariableContainer variables = VariableContainer();
-    output.writeln('books');
+    output.writeln('book(');
+    output.write('id: ');
+    output.writeln(
+        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
+
+    output.writeln(')');
     output.writeln($selector);
     output.writeln('}');
     String params =
@@ -412,32 +331,16 @@ class Query {
     return (output.toString(), variables.map);
   }
 
-  Future<Book?> book(
-    BookSelector $selector, {
-    required String id,
-  }) async {
+  Future<String?> version() async {
     return construct(
-      (await _executor(bookQl(
-        $selector,
-        id,
-      )))?['book'],
-      fromMap: Book.fromMap,
+      (await _executor(versionQl()))?['version'],
     );
   }
 
-  (String, Map<String, dynamic>) bookQl(
-    BookSelector $selector,
-    String id,
-  ) {
+  (String, Map<String, dynamic>) versionQl() {
     StringBuffer output = StringBuffer();
     VariableContainer variables = VariableContainer();
-    output.writeln('book(');
-    output.write('id: ');
-    output.writeln(
-        '"${id.replaceAll('\\', r'\\\\').replaceAll('\n', r'\\n').replaceAll('\r', r'\\r').replaceAll('\t', r'\\t').replaceAll('"', r'\\\"')}"');
-
-    output.writeln(')');
-    output.writeln($selector);
+    output.writeln('version');
     output.writeln('}');
     String params =
         variables.variables.map((e) => '\$${e.name}: ${e.type}').join(', ');
