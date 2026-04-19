@@ -127,7 +127,7 @@ class QlMethod {
       output.write(' fromMap: ${returnType.coreType.name}.fromMap,');
     }
     output.writeln(
-        ')${returnType.isList ? ' as List${returnType.nullable})${returnType.nullable}.cast<${returnType.innerType}>()' : ''};');
+        ')${returnType.isList ? ' as List?)?.cast<${returnType.innerType}>()${!returnType.isNullable ? ' ?? []' : ''}' : ''};');
     output.writeln('}');
     return output.toString();
   }

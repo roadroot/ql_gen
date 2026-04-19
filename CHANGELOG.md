@@ -26,3 +26,10 @@
 - Upgrade `tokenizer_parser` dependency to `^0.1.2`.
 - Add API documentation comments and clean analyzer issues.
 - Add tests for utility helpers and schema file reader behavior.
+
+## 0.1.6
+
+- Fixed issue where non-nullable list return types would crash with `TypeError` when executor returns null.
+  - Changed `as List` cast to `as List?` to safely handle null transport errors.
+  - Added `?? []` fallback for non-nullable lists to satisfy schema contract.
+  - Added static test coverage for `[Item!]!` return type.
