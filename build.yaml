@@ -1,0 +1,7 @@
+builders:
+  ql_gen_builder:
+    import: "package:ql_gen/builder.dart"
+    builder_factories: ["qlGenBuilder"]
+    build_extensions: {".graphql": [".graphql.dart"], ".gql": [".gql.dart"]}
+    auto_apply: dependents
+    build_to: source

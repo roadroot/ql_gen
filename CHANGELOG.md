@@ -1,3 +1,11 @@
+## 0.1.7
+
+- Add `build_runner` support: `.graphql` and `.gql` files are now automatically
+  compiled to Dart when running `dart run build_runner build`.
+- Add `ApiGenerator.fromContent(String content)` constructor for in-memory schema input.
+- Add `build.yaml` builder registration with `auto_apply: dependents`.
+- Add `build` package as a dependency.
+
 ## 0.1.0
 
 - Initial version.

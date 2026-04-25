@@ -1,6 +1,6 @@
 name: ql_gen
 description: Generate strongly typed Dart GraphQL client helpers from schema files, including models, selectors, and operation builders for queries and mutations.
-version: 0.1.6
+version: 0.1.7
 repository: https://github.com/roadroot/ql_gen
 
 environment:
@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   args: ^2.7.0
+  build: ^2.4.0
   tokenizer_parser: ^0.1.2
 
 dev_dependencies:

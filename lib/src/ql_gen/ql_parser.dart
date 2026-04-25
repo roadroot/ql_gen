@@ -85,7 +85,14 @@ class ApiGenerator {
   ''';
 
   ApiGenerator(String path) {
-    final res = Tokenizer.tokenizeFile(path, QlLang.lang, QlLang.ignore);
+    _init(Tokenizer.tokenizeFile(path, QlLang.lang, QlLang.ignore));
+  }
+
+  ApiGenerator.fromContent(String content) {
+    _init(Tokenizer.tokenize(content, QlLang.lang, QlLang.ignore));
+  }
+
+  void _init((List<Token>, List<Input>) res) {
     tokens = res.$1;
     remainingSegments = res.$2;
     if (remainingSegments.isNotEmpty) {

@@ -10,14 +10,16 @@ query and mutation execution in client apps.
 - Generate query and mutation helpers.
 - Generate selectors/field builders for typed request construction.
 - CLI support for schema-to-file generation.
+- `build_runner` integration: auto-generates Dart files from `.graphql`/`.gql` sources.
 
 ## Install
 
-Add dependency:
+Add `ql_gen` as a dev dependency together with `build_runner`:
 
 ```yaml
-dependencies:
-  ql_gen: ^0.1.5
+dev_dependencies:
+  ql_gen: ^0.1.7
+  build_runner: ^2.0.0
 ```
 
 Then run:
@@ -26,7 +28,28 @@ Then run:
 dart pub get
 ```
 
+## build_runner usage
+
+Place your schema file anywhere in the project (e.g. `lib/schema.graphql` or
+`lib/schema.gql`). Then run:
+
+```bash
+dart run build_runner build
+```
+
+This produces a `.dart` file next to each schema file
+(`lib/schema.graphql.dart` or `lib/schema.gql.dart`).
+
+To watch for changes and rebuild automatically:
+
+```bash
+dart run build_runner watch
+```
+
 ## CLI usage
+
+If you prefer one-off generation without `build_runner`, install `ql_gen` as a
+global tool or add it to `dev_dependencies` and run:
 
 ```bash
 dart run ql_gen --help
