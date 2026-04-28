@@ -7,3 +7,6 @@
 pubspec.lock
 /ql.dart
 ignore*
+
+# Generated documentation
+/doc/api/

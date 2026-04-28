@@ -46,6 +46,30 @@ To watch for changes and rebuild automatically:
 dart run build_runner watch
 ```
 
+### Builder options
+
+You can customize the schema source and output destination by adding a
+`targets` section to `build.yaml` in your project root:
+
+```yaml
+targets:
+  $default:
+    builders:
+      ql_gen|ql_gen_builder:
+        options:
+          # Custom schema file path (relative to package root).
+          # When set, the builder reads from this file instead of each .graphql/.gql input.
+          schema_path: lib/schema/schema.gql
+
+          # Custom output path. Use a trailing "/" for a directory (output file name
+          # is derived from the input), or a full path for a specific file.
+          output_path: lib/generated/
+```
+
+Both options are optional — the default behavior (process each `.graphql`/`.gql`
+file individually and output next to the source) is preserved when they are
+omitted.
+
 ## CLI usage
 
 If you prefer one-off generation without `build_runner`, install `ql_gen` as a

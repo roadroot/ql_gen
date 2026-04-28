@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/red/.pub-cache/**)",
+      "Read(//c/Users/red/AppData/Local/Pub/Cache/**)",
+      "Bash(dart pub *)",
+      "Bash(dart analyze *)",
+      "Bash(git add *)",
+    ]
+  }
+}
